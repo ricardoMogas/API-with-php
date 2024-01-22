@@ -1,0 +1,18 @@
+RewriteEngine On
+
+# no ncesario la extención .php y html cuando se ingrese en la url 
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.php -f
+RewriteRule ^(.*)$ $1.php
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.*)$ $1.html
+
+
+# Verificar si la solicitud no es para un archivo existente
+RewriteCond %{REQUEST_FILENAME} !-f
+# Verificar si la solicitud no es para un directorio existente
+RewriteCond %{REQUEST_FILENAME} !-d
+# Redirigir a index.php con la variable "url" como el segmento de la URL
+RewriteRule ^(.+?)/?$ index.php?url=$1 [L,QSA]
