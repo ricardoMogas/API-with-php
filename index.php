@@ -2,6 +2,7 @@
 require_once "core/ConexionDB.php";
 require_once "core/responseData.class.php";
 
+//front controller logica
 // Autoload de clases
 spl_autoload_register(function ($nameClass) {
     $classFile = './controllers/' . $nameClass . '.php';
