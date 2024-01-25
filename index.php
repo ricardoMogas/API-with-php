@@ -9,11 +9,20 @@ spl_autoload_register(function ($nameClass) {
     if (file_exists($classFile)) {
         include_once $classFile;
     } else {
-        // Manejar el caso en que el archivo de la clase no existe
-        $responseData = new responseData;
-        $responseError = $responseData->error_404();
-        header('Content-Type: application/json'); //Enviar antes del json o en al inicio del controlador
-        echo json_encode($responseError);
+        if ($nameClass != 'DefaultController') {
+           // Manejar el caso en que el archivo de la clase no existe
+            $responseData = new responseData;
+            $responseError = $responseData->error_404();
+            header('Content-Type: application/json'); //Enviar antes del json o en al inicio del controlador
+            echo json_encode($responseError);
+        } else {
+            $response = [
+                'status' => "Index",
+                'result' => 'Estas en index'
+            ];
+            header('Content-Type: application/json');
+            echo json_encode($response);
+        }
     }
 });
 
