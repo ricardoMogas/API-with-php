@@ -1,73 +1,100 @@
 <?php
-class FrontController {
-    private $controller;
+require_once "core/ConexionDB.php";
 
-    public function __construct() {
-        // Obtener la ruta de la URL
-        $url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
-        
-        // Separar la ruta en segmentos
-        $urlSegments = explode('/', trim($url, '/'));
+class FrontController
+{
+    private $checkSession = true; // Indica si se debe verificar la sesión
 
-        // Obtener el nombre del controlador
-        $controllerName = !empty($urlSegments[1]) ? ucfirst($urlSegments[1]) : 'Default';
+    public function __construct()
+    {
+        spl_autoload_register([$this, 'autoload']);
+        $this->handleRouting();
+    }
 
-        // Formar el nombre completo del controlador
-        $controllerClassName = $controllerName . 'Controller';
+    public function isSessionStarted()
+    {
+        return $this->checkSession && isset($_SESSION['user_id']);
+    }
 
-        // Verificar si la clase del controlador existe
-        if (class_exists($controllerClassName)) {
-            // Instanciar el controlador
-            $this->controller = new $controllerClassName();
+    private function autoload($nameClass)
+    {
+        $classFile = './controllers/' . $nameClass . '.php';
+        if (file_exists($classFile)) {
+            include_once $classFile;
         } else {
-            // Si no existe, utilizar un controlador por defecto o mostrar un error
-            $this->controller = new DefaultController();
+            $this->handleClassNotFound($nameClass);
         }
     }
 
-    public function run() {
-        // Obtener la acción de la URL, o usar 'index' por defecto
-        $action = isset($_GET['action']) ? $_GET['action'] : 'index';
-
-        // Agregar una acción por defecto si no se proporciona ninguna
-        if (!method_exists($this->controller, $action)) {
-            $action = 'index';
+    private function handleClassNotFound($nameClass)
+    {
+        if ($nameClass != 'HelpController') {
+            $responseError = array(
+                'status' => 'error',
+                'result' => array(
+                    'error_id' => '404',
+                    'error_msg' => 'Clase no encontrada'
+                )
+            );
+            header('Content-Type: application/json');
+            echo json_encode($responseError);
+        } else {
+            $controller = new HelpController();
         }
+    }
 
-        // Obtener parámetros de la URL
-        $urlParams = array_slice(explode('/', trim($_SERVER['REQUEST_URI'], '/')), 2);
+    private function goToController($url, $urlSegments, $action){
+        $params = array();
+        // saber si el segmento de la url tiene un ? para saber si tiene parametros
+        $NameComplete = !empty($urlSegments[1]) ? ucfirst($urlSegments[1]) : 'Help';
+        if (strpos($NameComplete, '?') !== false) {
+            // todo lo que este antes del ? en el segmento de la url
+            $controllerName = strstr($NameComplete, '?', true); 
+            // obtener los parametros de la url
+            $urlComponents = parse_url($url);
+            parse_str($urlComponents['query'], $params);
+        } else {
+            $controllerName = $NameComplete;
+        }
+        $controllerClassName = $controllerName . 'Controller';
+        if (class_exists($controllerClassName)) {
+            $controller = new $controllerClassName();
+            //codigo ates del if
+            if (method_exists($controller, $action)) {
+                call_user_func_array([$controller, $action], $params);
+            } else if(method_exists($controller, 'index')) {
+                $action = 'index';
+                call_user_func_array([$controller, $action], $params);
+            } else {
+                echo "Método Index no encontrado, declarar método index en el controlador";
+            }
+        }
+    }
 
-        // Ejecutar el método del controlador con los parámetros
-        $this->controller->{$action}(...$urlParams);
+    private function handleRouting()
+    {
+        $url = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '/';
+        $action = !empty($urlSegments[2]) ? $urlSegments[2] : 'index';
+        $method = $_SERVER['REQUEST_METHOD'];
+        $urlSegments = explode('/', trim($url, '/'));
+        switch ($method) {
+            case 'GET':
+                $action = 'doGet';
+                $this->goToController($url, $urlSegments, $action);
+                break;
+            case 'POST':
+                $action = 'doPost';
+                break;
+            case 'PUT':
+                $action = 'doPut';
+                break;
+            case 'DELETE':
+                $action = 'doDelete';
+                break;
+            default:
+                echo "Método no soportado";
+                break;
+        }
+        
     }
 }
-
-
-
-class DefaultController {
-    public function index() {
-        echo "Página de inicio";
-    }
-
-    public function about() {
-        echo "Acerca de nosotros";
-    }
-}
-
-class OtherController {
-    public function someAction() {
-        echo "Alguna acción";
-    }
-}
-
-class UserController {
-    public function getUser($userId) {
-        echo "Obteniendo información del usuario con ID $userId";
-    }
-}
-
-// Uso del FrontController
-/*
-    $frontController = new FrontController();
-    $frontController->run();
-*/

@@ -31,6 +31,7 @@ final class HelpController
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombreado */
       max-width: 500px;
       width: 100%;
+      margin: 10px;
     }
 
     .card h1 {
@@ -56,17 +57,24 @@ final class HelpController
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Cuerpo de un controlador</h1>
-    <p>
-        Un controlador debe tener la nomenclatura PascalCase y 
-        siempre terminar en <strong>Controller</strong>.
-    </p>
-    <code>
-                    final class ExempleController{
-                        function index(){}
-                    }
-    </code>
-  </div>
+  <main class="container">
+
+    <div class="card">
+      <h1>Pagina de Ayuda</h1>
+    </div>
+
+    <div class="card">
+      <h1>Cuerpo de un controlador</h1>
+      <p>
+          Un controlador debe tener la nomenclatura PascalCase y 
+          siempre terminar en <strong>Controller</strong>.
+      </p>
+      <code>
+                      final class ExempleController{
+                          function index(){}
+                      }
+      </code>
+    </div>
+  </main>
 </body>
 </html>
