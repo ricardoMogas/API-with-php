@@ -84,12 +84,15 @@ class FrontController
                 break;
             case 'POST':
                 $action = 'doPost';
+                $this->goToController($url, $urlSegments, $action);
                 break;
             case 'PUT':
                 $action = 'doPut';
+                $this->goToController($url, $urlSegments, $action);
                 break;
             case 'DELETE':
                 $action = 'doDelete';
+                $this->goToController($url, $urlSegments, $action);
                 break;
             default:
                 echo "Método no soportado";

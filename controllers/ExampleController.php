@@ -9,16 +9,17 @@ class ExampleController {
     
     public function doGet(...$params) {
         // control de errores por si no te trae el name en el parametro
+        /*
         if (!isset($params["name"])) {
             $response = new ResponseData();
             $responseError = $response->error_400();
             echo json_encode($responseError);
             return;
         }
-
+        */
 
         $data = array(
-            "name" => $params["name"],
+            "name" => "Ricardo",
             "data" => [
                 array(
                     "id" => 1,
